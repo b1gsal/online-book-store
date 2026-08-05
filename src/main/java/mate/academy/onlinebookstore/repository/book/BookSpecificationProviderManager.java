@@ -18,6 +18,7 @@ public class BookSpecificationProviderManager implements SpecificationProviderMa
         return specificationProviders.stream()
                 .filter(p -> p.getKey().equals(key))
                 .findFirst()
-                .orElseThrow(EntityNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Can't find specification provider by key: " + key));
     }
 }
