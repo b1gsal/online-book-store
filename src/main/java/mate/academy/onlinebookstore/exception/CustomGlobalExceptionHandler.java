@@ -37,4 +37,10 @@ public class CustomGlobalExceptionHandler {
         return new ResponseEntity<>(exception.getMessage(),
                 HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(RegistrationException.class)
+    public ResponseEntity<String> handleRegistrationException(RegistrationException exception) {
+        return new ResponseEntity<>(exception.getMessage(),
+                HttpStatus.BAD_REQUEST);
+    }
 }
