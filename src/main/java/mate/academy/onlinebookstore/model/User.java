@@ -45,7 +45,7 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
-    @Column(nullable = false, name = "is_deleted")
+    @Column(nullable = false)
     private boolean isDeleted;
 
     @Override
@@ -61,5 +61,10 @@ public class User implements UserDetails {
     @Override
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return !isDeleted;
     }
 }
