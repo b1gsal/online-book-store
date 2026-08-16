@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-admin-user
+      author: denys
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  value: 'admin@gmail.com'
+              - column:
+                  name: password
+                  value: '$2a$10$sLohZN7TVPfNM04hdmX3keySYPCbC2Vn4VQHegMBHqTd1M5gpJyUa'
+              - column:
+                  name: first_name
+                  value: 'Admin'
+              - column:
+                  name: last_name
+                  value: 'Adminow'
+        - insert:
+            tableName: users_roles
+            columns:
+              - column:
+                  name: user_id
+                  valueComputed: "(SELECT id FROM users WHERE email = 'admin@gmail.com')"
+              - column:
+                  name: role_id
+                  valueComputed: "(SELECT id FROM roles WHERE name = 'ROLE_ADMIN')"
