@@ -25,6 +25,9 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final UserService userService;
 
+    @Operation(summary = "Authenticate user",
+            description = "Authenticate user and give a jwt token")
+    @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
     public UserLoginResponseDto login(@RequestBody @Valid UserLoginRequestDto requestDto) {
         return authenticationService.authenticate(requestDto);
