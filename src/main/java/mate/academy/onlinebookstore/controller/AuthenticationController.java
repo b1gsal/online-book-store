@@ -4,8 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import mate.academy.onlinebookstore.dto.user.UserLoginRequestDto;
+import mate.academy.onlinebookstore.dto.user.UserLoginResponseDto;
 import mate.academy.onlinebookstore.dto.user.UserRegistrationRequestDto;
 import mate.academy.onlinebookstore.dto.user.UserResponseDto;
+import mate.academy.onlinebookstore.security.AuthenticationService;
 import mate.academy.onlinebookstore.service.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +22,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
+    private final AuthenticationService authenticationService;
     private final UserService userService;
+
+    @Operation(summary = "Authenticate user",
+            description = "Authenticate user and give a jwt token")
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/login")
+    public UserLoginResponseDto login(@RequestBody @Valid UserLoginRequestDto requestDto) {
+        return authenticationService.authenticate(requestDto);
+    }
 
     @Operation(summary = "Register a new user",
             description = "Register a new user account. Validate input data")
