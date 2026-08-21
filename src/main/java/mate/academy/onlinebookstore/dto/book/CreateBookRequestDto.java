@@ -1,6 +1,7 @@
 package mate.academy.onlinebookstore.dto.book;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -24,5 +25,6 @@ public record CreateBookRequestDto(
         String description,
         @URL
         String coverImage,
+        @NotEmpty
         List<Long> categoryIds) {
 }
