@@ -1,8 +1,7 @@
 package mate.academy.onlinebookstore.service.shoppingcart.impl;
 
 import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import mate.academy.onlinebookstore.dto.cartitem.CartItemQuantityRequestDto;
@@ -40,25 +39,21 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Book book = bookRepository.findById(cartItemRequestDto.bookId()).orElseThrow(
                 () -> new EntityNotFoundException(
                         "Can't find book by id " + cartItemRequestDto.bookId()));
-
         Set<CartItem> cartItems = shoppingCart.getCartItems();
-        List<Book> list = cartItems.stream().map(CartItem::getBook).toList();
-        if (list.contains(book)) {
-            cartItems.stream().forEach(cartItem -> {
-                if (cartItem.getBook().equals(book)) {
-                    int quantity = cartItem.getQuantity() + cartItemRequestDto.quantity();
-                    cartItem.setQuantity(quantity);
-                }
-            });
+        Optional<CartItem> cartItemOptional = cartItems.stream()
+                .filter(cartItem -> cartItem.getBook().getId().equals(cartItemRequestDto.bookId()))
+                .findFirst();
+        if (cartItemOptional.isPresent()) {
+            CartItem cartItem = cartItemOptional.get();
+            cartItem.setQuantity(cartItem.getQuantity() + cartItemRequestDto.quantity());
         } else {
             CartItem cartItem = new CartItem();
-            cartItem.setShoppingCart(shoppingCart);
             cartItem.setBook(book);
             cartItem.setQuantity(cartItemRequestDto.quantity());
+            cartItem.setShoppingCart(shoppingCart);
             CartItem savedCartItem = cartItemRepository.save(cartItem);
             shoppingCart.getCartItems().add(savedCartItem);
         }
-
         return shoppingCartMapper.toDto(shoppingCart);
     }
 
@@ -77,32 +72,27 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             CartItemQuantityRequestDto cartItemQuantityRequestDto,
             Authentication authentication) {
         User user = (User) authentication.getPrincipal();
-        ShoppingCart shoppingCartByUserId = shoppingCartRepository
-                .getShoppingCartByUserId(user.getId());
+        CartItem cartItem = cartItemRepository.findByIdAndShoppingCartId(cartItemId, user.getId())
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                "Can't find cart item with ids: cart item id "
+                                        + cartItemId + " shopping cart id " + user.getId()));
+        cartItem.setQuantity(cartItemQuantityRequestDto.quantity());
 
-        for (CartItem cartItem : shoppingCartByUserId.getCartItems()) {
-            if (Objects.equals(cartItem.getId(), cartItemId)) {
-                cartItem.setQuantity(cartItemQuantityRequestDto.quantity());
-                break;
-            }
-        }
-
-        return shoppingCartMapper.toDto(
-                shoppingCartRepository.save(shoppingCartByUserId));
+        return shoppingCartMapper.toDto(shoppingCartRepository
+                .getShoppingCartByUserId(user.getId()));
     }
 
     @Transactional
     @Override
     public void delete(Long cartItemId, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
-        ShoppingCart shoppingCartByUserId = shoppingCartRepository
-                .getShoppingCartByUserId(user.getId());
-        for (CartItem cartItem : shoppingCartByUserId.getCartItems()) {
-            if (Objects.equals(cartItem.getId(), cartItemId)) {
-                cartItemRepository.deleteById(cartItemId);
-                break;
-            }
-        }
+        CartItem cartItem = cartItemRepository.findByIdAndShoppingCartId(cartItemId, user.getId())
+                .orElseThrow(
+                        () -> new EntityNotFoundException(
+                                "Can't find cart item with ids: cart item id "
+                                        + cartItemId + " shopping cart id " + user.getId()));
+        cartItemRepository.delete(cartItem);
     }
 
     @Override
