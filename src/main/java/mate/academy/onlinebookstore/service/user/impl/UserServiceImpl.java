@@ -9,11 +9,10 @@ import mate.academy.onlinebookstore.exception.RegistrationException;
 import mate.academy.onlinebookstore.mapper.UserMapper;
 import mate.academy.onlinebookstore.model.Role;
 import mate.academy.onlinebookstore.model.RoleName;
-import mate.academy.onlinebookstore.model.ShoppingCart;
 import mate.academy.onlinebookstore.model.User;
 import mate.academy.onlinebookstore.repository.role.RoleRepository;
-import mate.academy.onlinebookstore.repository.shoppingcart.ShoppingCartRepository;
 import mate.academy.onlinebookstore.repository.user.UserRepository;
+import mate.academy.onlinebookstore.service.shoppingcart.ShoppingCartService;
 import mate.academy.onlinebookstore.service.user.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder encoder;
     private final RoleRepository roleRepository;
-    private final ShoppingCartRepository shoppingCartRepository;
+    private final ShoppingCartService shoppingCartService;
 
     @Transactional
     @Override
@@ -41,9 +40,7 @@ public class UserServiceImpl implements UserService {
                         + RoleName.ROLE_USER));
         model.setRoles(Set.of(userRole));
         User savedUser = userRepository.save(model);
-        ShoppingCart shoppingCart = new ShoppingCart();
-        shoppingCart.setUser(savedUser);
-        shoppingCartRepository.save(shoppingCart);
+        shoppingCartService.createUserShoppingCart(savedUser);
         return userMapper.toDto(savedUser);
     }
 }

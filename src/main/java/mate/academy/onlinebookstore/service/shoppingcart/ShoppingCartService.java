@@ -3,6 +3,7 @@ package mate.academy.onlinebookstore.service.shoppingcart;
 import mate.academy.onlinebookstore.dto.cartitem.CartItemQuantityRequestDto;
 import mate.academy.onlinebookstore.dto.cartitem.CartItemRequestDto;
 import mate.academy.onlinebookstore.dto.shoppingcart.ShoppingCartDto;
+import mate.academy.onlinebookstore.model.User;
 import org.springframework.security.core.Authentication;
 
 public interface ShoppingCartService {
@@ -16,4 +17,6 @@ public interface ShoppingCartService {
             Authentication authentication);
 
     void delete(Long cartItemId, Authentication authentication);
+
+    void createUserShoppingCart(User user);
 }
