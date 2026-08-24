@@ -1,5 +1,6 @@
 package mate.academy.onlinebookstore.service.user.impl;
 
+import jakarta.transaction.Transactional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import mate.academy.onlinebookstore.dto.user.UserRegistrationRequestDto;
@@ -11,6 +12,7 @@ import mate.academy.onlinebookstore.model.RoleName;
 import mate.academy.onlinebookstore.model.User;
 import mate.academy.onlinebookstore.repository.role.RoleRepository;
 import mate.academy.onlinebookstore.repository.user.UserRepository;
+import mate.academy.onlinebookstore.service.shoppingcart.ShoppingCartService;
 import mate.academy.onlinebookstore.service.user.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,9 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final PasswordEncoder encoder;
     private final RoleRepository roleRepository;
+    private final ShoppingCartService shoppingCartService;
 
+    @Transactional
     @Override
     public UserResponseDto register(UserRegistrationRequestDto requestDto) {
         if (userRepository.existsByEmail(requestDto.email())) {
@@ -36,6 +40,7 @@ public class UserServiceImpl implements UserService {
                         + RoleName.ROLE_USER));
         model.setRoles(Set.of(userRole));
         User savedUser = userRepository.save(model);
+        shoppingCartService.createUserShoppingCart(savedUser);
         return userMapper.toDto(savedUser);
     }
 }
