@@ -42,8 +42,30 @@ public class CustomGlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllExceptions(Exception exception) {
+        exception.printStackTrace();
         return new ResponseEntity<>("An unexpected error occurred",
                 HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(EmptyShoppingCartException.class)
+    public ResponseEntity<String> handleEmptyShoppingCartException(
+            EmptyShoppingCartException exception) {
+        return new ResponseEntity<>(exception.getMessage(),
+                HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<String> handleOrderNotFoundException(
+            OrderNotFoundException exception) {
+        return new ResponseEntity<>(exception.getMessage(),
+                HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(OrderItemNotFoundException.class)
+    public ResponseEntity<String> handleOrderItemNotFoundException(
+            OrderItemNotFoundException exception) {
+        return new ResponseEntity<>(exception.getMessage(),
+                HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
