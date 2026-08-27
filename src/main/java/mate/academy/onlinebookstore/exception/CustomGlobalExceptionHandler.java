@@ -54,20 +54,6 @@ public class CustomGlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<String> handleOrderNotFoundException(
-            OrderNotFoundException exception) {
-        return new ResponseEntity<>(exception.getMessage(),
-                HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(OrderItemNotFoundException.class)
-    public ResponseEntity<String> handleOrderItemNotFoundException(
-            OrderItemNotFoundException exception) {
-        return new ResponseEntity<>(exception.getMessage(),
-                HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException exception) {
         return new ResponseEntity<>(exception.getMessage(),

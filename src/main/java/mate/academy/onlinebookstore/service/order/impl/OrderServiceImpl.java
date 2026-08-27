@@ -13,8 +13,7 @@ import mate.academy.onlinebookstore.dto.order.OrderShoppingAddressDto;
 import mate.academy.onlinebookstore.dto.order.OrderStatusRequestDto;
 import mate.academy.onlinebookstore.dto.orderitem.OrderItemDto;
 import mate.academy.onlinebookstore.exception.EmptyShoppingCartException;
-import mate.academy.onlinebookstore.exception.OrderItemNotFoundException;
-import mate.academy.onlinebookstore.exception.OrderNotFoundException;
+import mate.academy.onlinebookstore.exception.EntityNotFoundException;
 import mate.academy.onlinebookstore.mapper.OrderItemMapper;
 import mate.academy.onlinebookstore.mapper.OrderMapper;
 import mate.academy.onlinebookstore.model.CartItem;
@@ -48,7 +47,8 @@ public class OrderServiceImpl implements OrderService {
         ShoppingCart shoppingCartByUserId = shoppingCartRepository
                 .getShoppingCartByUserId(user.getId());
         if (shoppingCartByUserId.getCartItems().isEmpty()) {
-            throw new EmptyShoppingCartException("User's shopping cart is empty");
+            throw new EmptyShoppingCartException("User's shopping cart is empty, user id "
+                    + user.getId());
         }
         Order order = new Order();
         order.setOrderDate(LocalDateTime.now());
@@ -77,7 +77,7 @@ public class OrderServiceImpl implements OrderService {
         shoppingCartByUserId.getCartItems().clear();
         shoppingCartRepository.save(shoppingCartByUserId);
 
-        return orderMapper.toDto(order);
+        return orderMapper.toDto(savedOrder);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderItemDto> getOrderItems(Long orderId, Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         Order order = orderRepository.findByUserAndId(user, orderId).orElseThrow(
-                () -> new OrderNotFoundException("Can't find order with id " + orderId));
+                () -> new EntityNotFoundException("Can't find order with id " + orderId));
         return order.getOrderItems().stream().map(orderItemMapper::toDto).toList();
     }
 
@@ -100,12 +100,12 @@ public class OrderServiceImpl implements OrderService {
                                      Authentication authentication) {
         User user = (User) authentication.getPrincipal();
         Order order = orderRepository.findByUserAndId(user, orderId).orElseThrow(
-                () -> new OrderNotFoundException("Can't find order with id " + orderId));
+                () -> new EntityNotFoundException("Can't find order with id " + orderId));
         OrderItem item = order.getOrderItems().stream()
                 .filter(orderItem -> Objects.equals(orderItem.getId(), itemId))
                 .findFirst()
                 .orElseThrow(
-                        () -> new OrderItemNotFoundException("Can't find item with id " + itemId));
+                        () -> new EntityNotFoundException("Can't find item with id " + itemId));
         return orderItemMapper.toDto(item);
     }
 
@@ -114,7 +114,7 @@ public class OrderServiceImpl implements OrderService {
     public OrderDto updateStatus(Long id,
                                  OrderStatusRequestDto statusRequestDto) {
         Order order = orderRepository.findById(id).orElseThrow(
-                () -> new OrderNotFoundException("Can't find order with id " + id));
+                () -> new EntityNotFoundException("Can't find order with id " + id));
         order.setStatus(statusRequestDto.status());
         return orderMapper.toDto(order);
     }
