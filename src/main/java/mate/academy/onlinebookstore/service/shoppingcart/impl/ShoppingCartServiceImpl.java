@@ -8,7 +8,6 @@ import mate.academy.onlinebookstore.dto.cartitem.CartItemQuantityRequestDto;
 import mate.academy.onlinebookstore.dto.cartitem.CartItemRequestDto;
 import mate.academy.onlinebookstore.dto.shoppingcart.ShoppingCartDto;
 import mate.academy.onlinebookstore.exception.EntityNotFoundException;
-import mate.academy.onlinebookstore.mapper.CartItemMapper;
 import mate.academy.onlinebookstore.mapper.ShoppingCartMapper;
 import mate.academy.onlinebookstore.model.Book;
 import mate.academy.onlinebookstore.model.CartItem;
@@ -27,7 +26,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final CartItemRepository cartItemRepository;
     private final BookRepository bookRepository;
-    private final CartItemMapper cartItemMapper;
     private final ShoppingCartMapper shoppingCartMapper;
 
     @Transactional
