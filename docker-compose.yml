@@ -37,7 +37,7 @@ services:
         "spring.datasource.password" : "$MYSQLDB_PASSWORD",
         "spring.jpa.properties.hibernate.dialect" : "$MYSQLDB_DRIVER"
       }'
-      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
+      JAVA_TOOL_OPTIONS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:$DEBUG_PORT"
 
 volumes:
   mysql_data:
