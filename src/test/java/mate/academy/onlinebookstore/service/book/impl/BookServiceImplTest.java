@@ -16,19 +16,29 @@ import mate.academy.onlinebookstore.model.Book;
 import mate.academy.onlinebookstore.model.Category;
 import mate.academy.onlinebookstore.repository.book.BookRepository;
 import mate.academy.onlinebookstore.repository.book.BookSpecificationBuilder;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BookServiceImplTest {
@@ -98,20 +108,20 @@ class BookServiceImplTest {
                 "Image",
                 List.of(1L));
 
-        Mockito.when(bookMapper.toModel(bookRequestDto)).thenReturn(bookModel);
-        Mockito.when(bookRepository.save(bookModel)).thenReturn(savedBook);
-        Mockito.when(bookMapper.toDto(savedBook)).thenReturn(bookDto);
+        when(bookMapper.toModel(bookRequestDto)).thenReturn(bookModel);
+        when(bookRepository.save(bookModel)).thenReturn(savedBook);
+        when(bookMapper.toDto(savedBook)).thenReturn(bookDto);
 
         BookDto actual = bookService.save(bookRequestDto);
-        Assertions.assertNotNull(actual);
-        Assertions.assertEquals(bookDto, actual);
+        assertNotNull(actual);
+        assertEquals(bookDto, actual);
 
-        Mockito.verify(bookMapper, Mockito.times(1)).toModel(bookRequestDto);
-        Mockito.verify(bookRepository, Mockito.times(1)).save(bookModel);
-        Mockito.verify(bookMapper, Mockito.times(1)).toDto(savedBook);
+        verify(bookMapper, times(1)).toModel(bookRequestDto);
+        verify(bookRepository, times(1)).save(bookModel);
+        verify(bookMapper, times(1)).toDto(savedBook);
 
-        Mockito.verifyNoMoreInteractions(bookMapper, bookRepository);
-        Mockito.verifyNoInteractions(specificationBuilder);
+        verifyNoMoreInteractions(bookMapper, bookRepository);
+        verifyNoInteractions(specificationBuilder);
     }
 
     @Test
@@ -152,18 +162,18 @@ class BookServiceImplTest {
         books.add(book);
         Page<Book> bookPage = new PageImpl<>(books, pageable, books.size());
 
-        Mockito.when(bookRepository.findAll(pageable)).thenReturn(bookPage);
-        Mockito.when(bookMapper.toDto(book)).thenReturn(bookDto);
+        when(bookRepository.findAll(pageable)).thenReturn(bookPage);
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
 
         Page<BookDto> actual = bookService.findAll(pageable);
 
-        Assertions.assertEquals(1, actual.getTotalElements());
-        Assertions.assertEquals(bookDto, actual.getContent().get(0));
+        assertEquals(1, actual.getTotalElements());
+        assertEquals(bookDto, actual.getContent().get(0));
 
-        Mockito.verify(bookRepository, Mockito.times(1)).findAll(pageable);
-        Mockito.verify(bookMapper, Mockito.times(1)).toDto(book);
-        Mockito.verifyNoMoreInteractions(bookRepository, bookMapper);
-        Mockito.verifyNoInteractions(specificationBuilder);
+        verify(bookRepository, times(1)).findAll(pageable);
+        verify(bookMapper, times(1)).toDto(book);
+        verifyNoMoreInteractions(bookRepository, bookMapper);
+        verifyNoInteractions(specificationBuilder);
     }
 
     @Test
@@ -174,16 +184,16 @@ class BookServiceImplTest {
         Pageable pageable = PageRequest.of(PAGE_NUMBER, PAGE_SIZE);
         Page<Book> bookPage = Page.empty(pageable);
 
-        Mockito.when(bookRepository.findAll(pageable)).thenReturn(bookPage);
+        when(bookRepository.findAll(pageable)).thenReturn(bookPage);
 
         Page<BookDto> actual = bookService.findAll(pageable);
 
-        Assertions.assertTrue(actual.isEmpty());
-        Assertions.assertEquals(0, actual.getTotalElements());
+        assertTrue(actual.isEmpty());
+        assertEquals(0, actual.getTotalElements());
 
-        Mockito.verify(bookRepository, Mockito.times(1)).findAll(pageable);
-        Mockito.verifyNoMoreInteractions(bookRepository);
-        Mockito.verifyNoInteractions(bookMapper, specificationBuilder);
+        verify(bookRepository, times(1)).findAll(pageable);
+        verifyNoMoreInteractions(bookRepository);
+        verifyNoInteractions(bookMapper, specificationBuilder);
     }
 
     @Test
@@ -219,19 +229,19 @@ class BookServiceImplTest {
                 "Image",
                 List.of(1L));
 
-        Mockito.when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
-        Mockito.when(bookMapper.toDto(book)).thenReturn(bookDto);
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
 
         BookDto actual = bookService.findById(bookId);
 
-        Assertions.assertNotNull(actual);
-        Assertions.assertEquals(bookDto, actual);
+        assertNotNull(actual);
+        assertEquals(bookDto, actual);
 
-        Mockito.verify(bookRepository, Mockito.times(1)).findById(bookId);
-        Mockito.verify(bookMapper, Mockito.times(1)).toDto(book);
+        verify(bookRepository, times(1)).findById(bookId);
+        verify(bookMapper, times(1)).toDto(book);
 
-        Mockito.verifyNoMoreInteractions(bookRepository, bookMapper);
-        Mockito.verifyNoInteractions(specificationBuilder);
+        verifyNoMoreInteractions(bookRepository, bookMapper);
+        verifyNoInteractions(specificationBuilder);
     }
 
     @Test
@@ -240,8 +250,8 @@ class BookServiceImplTest {
             """)
     public void findById_NotValidId_ShouldThrowException() {
         Long id = 32L;
-        Mockito.when(bookRepository.findById(id)).thenReturn(Optional.empty());
-        Exception exception = Assertions.assertThrows(
+        when(bookRepository.findById(id)).thenReturn(Optional.empty());
+        Exception exception = assertThrows(
                 EntityNotFoundException.class,
                 () -> bookService.findById(id)
         );
@@ -249,11 +259,11 @@ class BookServiceImplTest {
         String expected = "Can't find book by id " + id;
         String actual = exception.getMessage();
 
-        Assertions.assertEquals(expected, actual);
+        assertEquals(expected, actual);
 
-        Mockito.verify(bookRepository, Mockito.times(1)).findById(id);
-        Mockito.verifyNoMoreInteractions(bookRepository);
-        Mockito.verifyNoInteractions(bookMapper, specificationBuilder);
+        verify(bookRepository, times(1)).findById(id);
+        verifyNoMoreInteractions(bookRepository);
+        verifyNoInteractions(bookMapper, specificationBuilder);
     }
 
     @Test
@@ -265,9 +275,9 @@ class BookServiceImplTest {
 
         bookService.deleteById(id);
 
-        Mockito.verify(bookRepository, Mockito.times(1)).deleteById(id);
-        Mockito.verifyNoMoreInteractions(bookRepository);
-        Mockito.verifyNoInteractions(bookMapper, specificationBuilder);
+        verify(bookRepository, times(1)).deleteById(id);
+        verifyNoMoreInteractions(bookRepository);
+        verifyNoInteractions(bookMapper, specificationBuilder);
     }
 
     @Test
@@ -286,18 +296,18 @@ class BookServiceImplTest {
                 "Image",
                 List.of(1L));
 
-        Exception exception = Assertions.assertThrows(
+        Exception exception = assertThrows(
                 EntityNotFoundException.class,
                 () -> bookService.update(id, bookRequestDto)
         );
         String expected = "Can't find book by id " + id;
         String actual = exception.getMessage();
 
-        Assertions.assertEquals(expected, actual);
+        assertEquals(expected, actual);
 
-        Mockito.verify(bookRepository, Mockito.times(1)).findById(id);
-        Mockito.verifyNoMoreInteractions(bookRepository);
-        Mockito.verifyNoInteractions(bookMapper, specificationBuilder);
+        verify(bookRepository, times(1)).findById(id);
+        verifyNoMoreInteractions(bookRepository);
+        verifyNoInteractions(bookMapper, specificationBuilder);
     }
 
     @Test
@@ -343,9 +353,9 @@ class BookServiceImplTest {
                 "Image",
                 List.of(1L));
 
-        Mockito.when(bookRepository.findById(id)).thenReturn(Optional.of(existingBook));
+        when(bookRepository.findById(id)).thenReturn(Optional.of(existingBook));
 
-        Mockito.doAnswer(invocation -> {
+        doAnswer(invocation -> {
             CreateBookRequestDto sourceDto = invocation.getArgument(0);
             Book targetBook = invocation.getArgument(1);
 
@@ -355,22 +365,22 @@ class BookServiceImplTest {
             return null;
         }).when(bookMapper).updateBookFromDto(bookRequestDto, existingBook);
 
-        Mockito.when(bookRepository.save(existingBook)).thenReturn(existingBook);
+        when(bookRepository.save(existingBook)).thenReturn(existingBook);
 
-        Mockito.when(bookMapper.toDto(existingBook)).thenReturn(bookDto);
+        when(bookMapper.toDto(existingBook)).thenReturn(bookDto);
 
         BookDto actual = bookService.update(id, bookRequestDto);
 
-        Assertions.assertNotNull(actual);
-        Assertions.assertEquals(bookDto, actual);
+        assertNotNull(actual);
+        assertEquals(bookDto, actual);
 
-        Mockito.verify(bookRepository, Mockito.times(1)).findById(id);
-        Mockito.verify(bookMapper, Mockito.times(1)).updateBookFromDto(bookRequestDto, existingBook);
-        Mockito.verify(bookRepository, Mockito.times(1)).save(existingBook);
-        Mockito.verify(bookMapper, Mockito.times(1)).toDto(existingBook);
+        verify(bookRepository, times(1)).findById(id);
+        verify(bookMapper, times(1)).updateBookFromDto(bookRequestDto, existingBook);
+        verify(bookRepository, times(1)).save(existingBook);
+        verify(bookMapper, times(1)).toDto(existingBook);
 
-        Mockito.verifyNoMoreInteractions(bookRepository, bookMapper);
-        Mockito.verifyNoInteractions(specificationBuilder);
+        verifyNoMoreInteractions(bookRepository, bookMapper);
+        verifyNoInteractions(specificationBuilder);
     }
 
     @Test
@@ -386,7 +396,7 @@ class BookServiceImplTest {
         Pageable pageable = PageRequest.of(PAGE_NUMBER, PAGE_SIZE);
 
         @SuppressWarnings("unchecked")
-        Specification<Book> specification = Mockito.mock(Specification.class);
+        Specification<Book> specification = mock(Specification.class);
 
         Category category = new Category();
         category.setId(1L);
@@ -417,20 +427,20 @@ class BookServiceImplTest {
 
         Page<Book> bookPage = new PageImpl<>(List.of(book));
 
-        Mockito.when(specificationBuilder.build(bookSearchParametersDto)).thenReturn(specification);
-        Mockito.when(bookRepository.findAll(specification, pageable)).thenReturn(bookPage);
-        Mockito.when(bookMapper.toDto(book)).thenReturn(bookDto);
+        when(specificationBuilder.build(bookSearchParametersDto)).thenReturn(specification);
+        when(bookRepository.findAll(specification, pageable)).thenReturn(bookPage);
+        when(bookMapper.toDto(book)).thenReturn(bookDto);
 
         Page<BookDto> actual = bookService.search(bookSearchParametersDto, pageable);
 
-        Assertions.assertTrue(actual.getTotalElements() > 0);
-        Assertions.assertEquals(bookDto, actual.getContent().get(0));
+        assertTrue(actual.getTotalElements() > 0);
+        assertEquals(bookDto, actual.getContent().get(0));
 
-        Mockito.verify(specificationBuilder, Mockito.times(1)).build(bookSearchParametersDto);
-        Mockito.verify(bookRepository, Mockito.times(1)).findAll(specification, pageable);
-        Mockito.verify(bookMapper, Mockito.times(1)).toDto(book);
+        verify(specificationBuilder, times(1)).build(bookSearchParametersDto);
+        verify(bookRepository, times(1)).findAll(specification, pageable);
+        verify(bookMapper, times(1)).toDto(book);
 
-        Mockito.verifyNoMoreInteractions(specificationBuilder, bookRepository, bookMapper);
+        verifyNoMoreInteractions(specificationBuilder, bookRepository, bookMapper);
     }
 
     @Test
@@ -469,18 +479,18 @@ class BookServiceImplTest {
 
         Page<Book> bookPage = new PageImpl<>(List.of(book));
 
-        Mockito.when(bookRepository.findAllByCategoriesId(categoryId, pageable)).thenReturn(bookPage);
-        Mockito.when(bookMapper.toDtoWithoutCategoryIds(book)).thenReturn(bookDto);
+        when(bookRepository.findAllByCategoriesId(categoryId, pageable)).thenReturn(bookPage);
+        when(bookMapper.toDtoWithoutCategoryIds(book)).thenReturn(bookDto);
 
         Page<BookDtoWithoutCategoryIds> actual = bookService.findByCategoryId(categoryId, pageable);
 
-        Assertions.assertTrue(actual.getTotalElements() > 0);
-        Assertions.assertEquals(bookDto, actual.getContent().get(0));
+        assertTrue(actual.getTotalElements() > 0);
+        assertEquals(bookDto, actual.getContent().get(0));
 
-        Mockito.verify(bookRepository, Mockito.times(1)).findAllByCategoriesId(categoryId, pageable);
-        Mockito.verify(bookMapper, Mockito.times(1)).toDtoWithoutCategoryIds(book);
+        verify(bookRepository, times(1)).findAllByCategoriesId(categoryId, pageable);
+        verify(bookMapper, times(1)).toDtoWithoutCategoryIds(book);
 
-        Mockito.verifyNoMoreInteractions(bookRepository, bookMapper);
-        Mockito.verifyNoInteractions(specificationBuilder);
+        verifyNoMoreInteractions(bookRepository, bookMapper);
+        verifyNoInteractions(specificationBuilder);
     }
 }

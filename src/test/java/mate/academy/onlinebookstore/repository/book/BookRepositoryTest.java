@@ -4,7 +4,6 @@ import java.util.Set;
 import mate.academy.onlinebookstore.config.AbstractTestContainers;
 import mate.academy.onlinebookstore.model.Book;
 import mate.academy.onlinebookstore.model.Category;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.jdbc.Sql;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -35,16 +37,16 @@ class BookRepositoryTest extends AbstractTestContainers {
 
         Page<Book> actual = bookRepository.findAllByCategoriesId(categoryId, pageable);
 
-        Assertions.assertEquals(2, actual.getTotalElements());
+        assertEquals(2, actual.getTotalElements());
 
         Set<Category> firstBookCategories = actual.getContent().get(0).getCategories();
         boolean hasCategoryFirstBook = firstBookCategories.stream().anyMatch(
                 category -> category.getId().equals(categoryId));
-        Assertions.assertTrue(hasCategoryFirstBook);
+        assertTrue(hasCategoryFirstBook);
         Set<Category> secondBookCategories = actual.getContent().get(1).getCategories();
         boolean hasCategorySecondBook = secondBookCategories.stream().anyMatch(
                 category -> category.getId().equals(categoryId));
-        Assertions.assertTrue(hasCategorySecondBook);
+        assertTrue(hasCategorySecondBook);
 
     }
 

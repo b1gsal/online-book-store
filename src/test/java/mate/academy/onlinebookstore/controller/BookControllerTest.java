@@ -5,22 +5,23 @@ import java.util.List;
 import mate.academy.onlinebookstore.config.AbstractTestContainers;
 import mate.academy.onlinebookstore.dto.book.BookDto;
 import mate.academy.onlinebookstore.dto.book.CreateBookRequestDto;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.databind.ObjectMapper;
 
+import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -28,6 +29,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BookControllerTest extends AbstractTestContainers {
@@ -40,8 +42,7 @@ class BookControllerTest extends AbstractTestContainers {
     static void beforeAll(
             @Autowired WebApplicationContext applicationContext
             ) {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(applicationContext)
+        mockMvc = webAppContextSetup(applicationContext)
                 .apply(springSecurity())
                 .build();
     }
@@ -82,17 +83,16 @@ class BookControllerTest extends AbstractTestContainers {
         MvcResult result = mockMvc.perform(
                 post("/books")
                         .content(jsonRequest)
-                        .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(APPLICATION_JSON)
                 ).andExpect(status().isCreated())
                 .andReturn();
 
         String contentAsString = result.getResponse().getContentAsString();
         BookDto actual = objectMapper.readValue(contentAsString, BookDto.class);
-        Assertions.assertNotNull(actual);
-        Assertions.assertNotNull(actual.id());
+        assertNotNull(actual);
+        assertNotNull(actual.id());
 
-        boolean checkIfActualEqualExpected = EqualsBuilder.reflectionEquals(expected, actual, "id");
-        Assertions.assertTrue(checkIfActualEqualExpected);
+        assertTrue(reflectionEquals(expected, actual, "id"));
     }
 
     @WithMockUser(username = "admin", roles = {"ADMIN"})
@@ -106,7 +106,7 @@ class BookControllerTest extends AbstractTestContainers {
     @DisplayName("Check if thre books were return")
     public void getAll_ValidData_ShouldReturnPageOfThreeBooks() throws Exception {
         mockMvc.perform(get("/books")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(3))
                 .andExpect(jsonPath("$.content[0].title").value("The Bourne Identity"))
@@ -135,13 +135,13 @@ class BookControllerTest extends AbstractTestContainers {
                 List.of(1L));
 
         MvcResult result = mockMvc.perform(get("/books/1")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
         String contentAsString = result.getResponse().getContentAsString();
         BookDto actual = objectMapper.readValue(contentAsString, BookDto.class);
-        Assertions.assertNotNull(actual);
-        Assertions.assertEquals(expected, actual);
+        assertNotNull(actual);
+        assertEquals(expected, actual);
     }
 
     @WithMockUser(username = "admin", roles = {"ADMIN"})
@@ -195,15 +195,15 @@ class BookControllerTest extends AbstractTestContainers {
 
         MvcResult result = mockMvc.perform(put("/books/1")
                         .content(jsonRequest)
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String contentAsString = result.getResponse().getContentAsString();
         BookDto actual = objectMapper.readValue(contentAsString, BookDto.class);
 
-        Assertions.assertNotNull(actual);
-        Assertions.assertEquals(expected, actual);
+        assertNotNull(actual);
+        assertEquals(expected, actual);
     }
 
     @WithMockUser(username = "admin", roles = {"ADMIN"})
@@ -219,7 +219,7 @@ class BookControllerTest extends AbstractTestContainers {
         mockMvc.perform(get("/books/search")
                         .param("authors", "Robert Ludlum")
                         .param("authors", "Robert Louis Stevenson")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(2))
                 .andExpect(jsonPath("$.content[0].title").value("The Bourne Identity"))
